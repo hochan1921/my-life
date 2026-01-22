@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import Header from "@/components/Header";
 
 export const dynamic = "force-dynamic";
 
@@ -7,21 +8,12 @@ export default async function Home() {
   const posts = await prisma.post.findMany({
     where: { published: true },
     orderBy: { createdAt: "desc" },
+    include: { author: true },
   });
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-4xl mx-auto px-4 py-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">My Blog</h1>
-          <Link
-            href="/posts/new"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            New Post
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         {posts.length === 0 ? (
@@ -39,9 +31,12 @@ export default async function Home() {
                   </h2>
                 </Link>
                 <p className="text-gray-600 mt-2 line-clamp-2">{post.content}</p>
-                <p className="text-sm text-gray-400 mt-4">
-                  {new Date(post.createdAt).toLocaleDateString("ja-JP")}
-                </p>
+                <div className="flex justify-between items-center mt-4">
+                  <p className="text-sm text-gray-500">by {post.author.name}</p>
+                  <p className="text-sm text-gray-400">
+                    {new Date(post.createdAt).toLocaleDateString("ja-JP")}
+                  </p>
+                </div>
               </article>
             ))}
           </div>
